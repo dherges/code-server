@@ -7,7 +7,7 @@ set -euo pipefail
 function main() {
   cd "$(dirname "${0}")/.."
 
-  local code_server_version=${VERSION:-${TRAVIS_TAG:-${DRONE_TAG:-}}}
+  local code_server_version=${VERSION-${TRAVIS_TAG-}}
   if [[ -z $code_server_version ]]; then
     code_server_version=$(grep version ./package.json | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[:space:]')
   fi
@@ -16,8 +16,8 @@ function main() {
   YARN_CACHE_FOLDER="$(pwd)/yarn-cache"
   export YARN_CACHE_FOLDER
 
-  # Always minify and package on tags since that's when releases are pushed.
-  if [[ -n ${DRONE_TAG:-} || -n ${TRAVIS_TAG:-} ]]; then
+  # Always minify and package on CI since that's when releases are pushed.
+  if [[ ${CI-} ]]; then
     export MINIFY="true"
     export PACKAGE="true"
   fi
